@@ -18,8 +18,13 @@ class DumbDatabaseQuery(DatabaseQuery):
 
     def take(self, count: int) -> "DatabaseQuery":
         tmp = dict()
-        for i in range(count + 1 if len(self.result) > count + 1 else len(self.result)):
+        taken = 0
+        for i in self.result.keys():
+            print(self.result)
             tmp.update({i: self.result[i]})
+            taken += 1
+            if taken > count:
+                break
         self.result = tmp
         return self
 
@@ -38,6 +43,17 @@ class DumbDatabaseQuery(DatabaseQuery):
                 in enumerate(self.database.database[self.table_name])
             }
         data.update(self.result)
+        self.database.database[self.table_name] = [ value for _, value in data.items()]
+
+    def delete(self):
+        data = {
+                key: value 
+                for key, value 
+                in enumerate(self.database.database[self.table_name])
+            }
+        for key in self.result.keys():
+            if key in data:
+                del data[key]
         self.database.database[self.table_name] = [ value for _, value in data.items()]
 
     def _get_op(self, operator):

@@ -174,10 +174,18 @@ class SimpleApi(Api):
             ).retrieve(
             )
         ) > 0:
+            id = len(
+                self.database.make_request(
+                    self.config.get_var("messagebase") or "message_cluster.messages"
+                ).retrieve(
+                )
+            )
+            
             self.database.make_request(
                 self.config.get_var("messagebase") or "message_cluster.messages"
             ).put(
                 {
+                    "id": id,
                     "sender": sender,
                     "reciever": reciever,
                     "message": message,
@@ -191,4 +199,47 @@ class SimpleApi(Api):
         ).filter(
             "reciever", DatabaseQuery.OP_EQUALS, username
         ).retrieve(
+        )
+
+    def check_owner(self, username: str, id: int) -> bool:
+        out = len(
+            (data := self.database.make_request(
+                self.config.get_var("messagebase") or "message_cluster.messages"
+            ).filter(
+                "id", DatabaseQuery.OP_EQUALS, id
+            )).filter(
+                "sender", DatabaseQuery.OP_EQUALS, username
+            ).take(
+                1
+            ).retrieve(
+            )
+        ) > 0
+        print(data.retrieve())
+        return out
+
+    def delete_message(self, id: int):
+        self.database.make_request(
+            self.config.get_var("messagebase") or "message_cluster.messages"
+        ).filter(
+            "id", DatabaseQuery.OP_EQUALS, id
+        ).delete(
+        )
+
+    def change_message(self, id: int, message: str):
+        print(
+            self.database.make_request(
+                self.config.get_var("messagebase") or "message_cluster.messages"
+            ).filter(
+                "id", DatabaseQuery.OP_EQUALS, id
+            ).retrieve(
+            )
+        )
+        self.database.make_request(
+            self.config.get_var("messagebase") or "message_cluster.messages"
+        ).filter(
+            "id", DatabaseQuery.OP_EQUALS, id
+        ).patch(
+            {
+                "message": message,
+            }
         )

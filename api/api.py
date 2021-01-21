@@ -36,3 +36,12 @@ class Api:
 
     def get_user_messages(self, username: str) -> Tuple[str]:
         raise NotImplementedError
+
+    def check_owner(self, username: str, id: int) -> bool:
+        raise NotImplementedError
+
+    def delete_message(self, id: int):
+        raise NotImplementedError
+
+    def change_message(self, id: int, message: str):
+        raise NotImplementedError

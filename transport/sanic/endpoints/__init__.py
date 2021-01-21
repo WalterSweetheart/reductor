@@ -9,5 +9,5 @@ def get_binded_endpoints(api: Api) -> Tuple:
     return (
             UserEndpoint(api, "/user", ("GET", "POST", "PATCH")),
             AuthEndpoint(api, "/auth", ("POST", "GET",)),
-            MsgEndpoint(api,  "/msg",  ("GET", "POST", "CONNECT",)),
+            MsgEndpoint(api,  "/msg",  ("GET", "POST", "DELETE","PATCH",)),
     )

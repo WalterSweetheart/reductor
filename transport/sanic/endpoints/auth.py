@@ -1,6 +1,6 @@
 from transport.sanic.endpoint_base import EndpointBase
 from sanic.request import Request
-from sanic.response import BaseHTTPResponse, json
+from sanic.response import BaseHTTPResponse, html, json
 
 
 class AuthEndpoint(EndpointBase):
@@ -14,3 +14,13 @@ class AuthEndpoint(EndpointBase):
                 response.cookies["token"] = self.api.generate_user_token(data["username"])
                 return response
         return json({"Authorization": "Incorrect username or password"}, status=404)
+
+    #Because I need it for testing
+    async def method_get(self, request: Request, body: dict) -> BaseHTTPResponse:
+        return html("""
+            <form method='post'>
+                <input type="text" name="username" />
+                <input type="text" name="password" />
+                <input type="submit" value="submt" />
+            </form>
+        """)

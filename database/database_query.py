@@ -21,3 +21,6 @@ class DatabaseQuery:
 
     def patch(self, **kwargs):
         raise NotImplementedError
+
+    def delete(self):
+        raise NotImplementedError
