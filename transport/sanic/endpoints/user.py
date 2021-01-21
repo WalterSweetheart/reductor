@@ -26,6 +26,7 @@ class UserEndpoint(EndpointBase):
             {
                 "firstname": data.get("firstname"),
                 "lastname": data.get("lastname"),
+                "password": data.get("password")
             }
         )
         return json({"Status": "OK"})

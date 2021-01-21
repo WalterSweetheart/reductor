@@ -1,3 +1,5 @@
+from typing import NoReturn
+from transport.sanic.endpoints import user
 from database.database_query import DatabaseQuery
 from configs import ApiConfig
 from database import Database
@@ -126,6 +128,14 @@ class SimpleApi(Api):
         return ""
 
     def update_user_info(self, username: str, userinfo: dict) -> None:
+        updatedinfo = {}
+        if "password" in userinfo and userinfo["password"] is not None:
+            updatedinfo["password"] = md5(userinfo["password"].strip().encode()).hexdigest()
+        if "firstname" in userinfo and userinfo["firstname"] is not None:
+            updatedinfo["firstname"] = userinfo["password"]
+        if "lastname" in userinfo and userinfo["lastname"] is not None:
+            updatedinfo["lastname"] = userinfo["lastname"]
+        
         query = self.database.make_request( #YES, I can split it up
             self.config.get_var("userbase") or "user_cluster.users"
         ).filter(
@@ -133,10 +143,11 @@ class SimpleApi(Api):
         ).take(
             1
         )
+        
         if len(
             query.retrieve()
         ) > 0:
-            query.patch(userinfo)
+            query.patch(updatedinfo)
 
     def create_user(self, username: str, password: str, firstname: str, lastname: str) -> None:
         if len(
