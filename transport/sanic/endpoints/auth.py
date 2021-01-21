@@ -13,4 +13,4 @@ class AuthEndpoint(EndpointBase):
                 response = json({"Authorization": "Logined in"})
                 response.cookies["token"] = self.api.generate_user_token(data["username"])
                 return response
-        return json({"Authorization": "Incorrect username or password"})
+        return json({"Authorization": "Incorrect username or password"}, status=404)

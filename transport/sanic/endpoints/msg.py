@@ -4,11 +4,8 @@ from transport.sanic.endpoint_base import EndpointBase
 
 
 class MsgEndpoint(EndpointBase):
+    @EndpointBase.authorization_required
     async def method_get(self, request: Request, body: dict) -> BaseHTTPResponse:
-        if "token" not in request.cookies:
-            return json({"Status": "Fail. Autorization is required"})
-        if not self.api.is_token_valid(request.cookies["token"]):
-            return json({"Status": "Fail. Token is invalid. Please, relogin"})
         messages = self.api.get_user_messages(self.api.get_username_by_token(request.cookies["token"]))
         out = []
         for message in messages:
@@ -16,17 +13,13 @@ class MsgEndpoint(EndpointBase):
             out.append({"sender": message["sender"], "message": message["message"], "sent_at": str(message["sent_at"])})
         return json(out)
     
-    async def method_post(self, request: Request, body: dict) -> BaseHTTPResponse:
-        if "token" not in request.cookies:
-            return json({"Status": "Fail. Autorization is required"})
-        if not self.api.is_token_valid(request.cookies["token"]):
-            return json({"Status": "Fail. Token is invalid. Please, relogin"})
-        
+    @EndpointBase.authorization_required
+    async def method_post(self, request: Request, body: dict, *args, **kwargs) -> BaseHTTPResponse:
         data = body["DATA"]
         if "message" not in data or "reciever" not in data:
-            return json({"Status": "Fail. Message or reciever is invalid"})
+            return json({"Status": "Fail. Message or reciever is invalid"}, status=409)
         if not self.api.is_user_exists(data["reciever"]):
-            return json({"Status": "Fail. No such reciever"})
+            return json({"Status": "Fail. No such reciever"}, status=404)
         self.api.send_message(
             sender=self.api.get_username_by_token(request.cookies["token"]),
             reciever=data["reciever"],

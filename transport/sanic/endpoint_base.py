@@ -29,4 +29,14 @@ class EndpointBase:
         return await self.method_not_impl(method)
     
     async def method_not_impl(self, method: str) -> BaseHTTPResponse:
-        return json("Method " + method.upper() + " is not implemented", 500)
+        return json("Method " + method.upper() + " is not implemented", 501)
+    
+    
+    def authorization_required(func):
+        async def wrapper(self, request: Request, body: dict, *args, **kwargs):
+            if "token" not in request.cookies:
+                return json({"Status": "Fail. Autorization is required"}, status=401)
+            if not self.api.is_token_valid(request.cookies["token"]):
+                return json({"Status": "Fail. Token is invalid. Please, relogin"}, status=401)
+            return await func(self, request, body, *args, **kwargs)
+        return wrapper
