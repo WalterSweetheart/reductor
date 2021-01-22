@@ -2,10 +2,13 @@ from os import remove
 from database import DatabaseQuery
 
 class DumbDatabaseQuery(DatabaseQuery):
-    def __init__(self, database, table_name: str):
+    def clone(self) -> "DumbDatabaseQuery":
+        return DumbDatabaseQuery(self.database, self.table_name, self.result)
+
+    def __init__(self, database, table_name: str, result: dict = None):
         self.database = database
         self.table_name = table_name
-        self.result = {key: value for key, value in enumerate(database.database[table_name])}
+        self.result = {key: value for key, value in enumerate(database.database[table_name])} if result is None else result
 
     def filter(self, name: str, op: int, value: str) -> "DatabaseQuery":
         tmp = dict()
@@ -14,7 +17,7 @@ class DumbDatabaseQuery(DatabaseQuery):
                 continue
             tmp.update({item: self.result[item]})
         self.result = tmp
-        return self
+        return self.clone()
 
     def take(self, count: int) -> "DatabaseQuery":
         tmp = dict()
@@ -26,7 +29,7 @@ class DumbDatabaseQuery(DatabaseQuery):
             if taken > count:
                 break
         self.result = tmp
-        return self
+        return self.clone()
 
     def retrieve(self) -> list:
         return list(self.result.values())
